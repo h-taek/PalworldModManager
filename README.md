@@ -45,6 +45,11 @@
 - Some Windows-cooked cosmetic paks may not render due to shader-format differences (a property of how the mod was cooked, not the manager).
 - The manager app itself has no self-update; a new version is installed by re-downloading.
 
+## Related projects
+
+- [UE4SS-Palworld-macOS](https://github.com/h-taek/UE4SS-Palworld-macOS) — the macOS (Apple Silicon) UE4SS loader this app injects and auto-updates.
+- [PalworldMod](https://github.com/h-taek/PalworldMod) — homemade QoL mods for Palworld on macOS, installable through this app.
+
 ## License
 
 [MIT](LICENSE) © h-taek

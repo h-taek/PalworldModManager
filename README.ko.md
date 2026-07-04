@@ -45,6 +45,11 @@
 - Windows에서 쿡된 일부 코스메틱 pak은 셰이더 포맷 차이로 외형이 표시되지 않을 수 있다(모드 제작 방식에 따른 한계, 매니저가 아님).
 - 매니저 앱 자체의 자동 업데이트는 없다. 새 버전은 재다운로드로 교체한다.
 
+## 관련 프로젝트
+
+- [UE4SS-Palworld-macOS](https://github.com/h-taek/UE4SS-Palworld-macOS) — 이 앱이 주입·자동 업데이트하는 macOS(Apple Silicon) UE4SS 로더.
+- [PalworldMod](https://github.com/h-taek/PalworldMod) — 이 앱으로 설치하는 macOS용 Palworld QoL 자작 모드 모음.
+
 ## 라이선스
 
 [MIT](LICENSE) © h-taek
