@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Palworld Mod Manager — M1</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+
+  <body>
+    <div class="app">
+      <nav class="rail">
+        <button class="rbtn" data-view="play" title="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+        <div class="rdiv"></div>
+        <button class="rbtn" data-view="mods" title="Mods"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5 20.5 7 12 11.5 3.5 7z"/><path d="M3.5 7 12 11.5 12 21.5 3.5 17z" opacity=".55"/><path d="M20.5 7 12 11.5 12 21.5 20.5 17z" opacity=".78"/></svg></button>
+        <div class="rspacer"></div>
+        <button class="rbtn" data-view="settings" title="Settings"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94a7.97 7.97 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.7 7.7 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.24-1.12.56-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.7 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.97 7.97 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.42.34.61.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.58-.24 1.12-.56 1.62-.94l2.39.96c.19.12.47.02.61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg></button>
+      </nav>
+      <section class="view" data-view="play" id="view-play"></section>
+      <section class="view" data-view="mods" id="view-mods"></section>
+      <section class="view settings" data-view="settings" id="view-settings"></section>
+    </div>
+    <div class="toasts" id="toasts"></div>
+    <div id="modal-host"></div>
+    <div class="overlay" id="drop-overlay" hidden><div class="obox">＋ Drop mods to import</div></div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

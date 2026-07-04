@@ -1,0 +1,35 @@
+[package]
+name = "palworld-mod-manager"
+version = "0.1.0"
+description = "Palworld Mod Manager (macOS arm64)"
+authors = ["htaeky"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "palworld_mod_manager_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+zip = "2"
+ureq = "2"
+repak = { git = "https://github.com/trumank/repak", tag = "v0.2.3" }
+
+# macOS 네이티브 NSOpenPanel 직접 호출용 (파일+폴더 단일 다이얼로그)
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", features = ["NSOpenPanel", "NSSavePanel", "NSPanel", "NSWindow", "NSResponder", "NSApplication"] }
+objc2-foundation = { version = "0.3", features = ["NSArray", "NSString", "NSURL"] }
+

@@ -1,0 +1,43 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Rust / Tauri build artifacts (also heavy for iCloud sync)
+src-tauri/target/
+src-tauri/gen/
+
+# Loader binary: copied from 02_UE4SS_mac build (license-gated ~12MB).
+# Proper path = submodule / binary release (ADR-3). Kept on disk, not in git history.
+src-tauri/resources/*.dylib
+
+# retoc: 서드파티 pak->IoStore 변환 바이너리(~8MB). tools/fetch-retoc.sh가 조달·검증.
+# 버전은 resources/retoc-version.txt(추적)로 핀.
+src-tauri/resources/retoc
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.agentbridge/
+.gstack/
+.codex
+.superpowers/
+docs/
+HANDOFF.md
+PROGRESS.md
