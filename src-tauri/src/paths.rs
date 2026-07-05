@@ -82,6 +82,13 @@ pub fn container_log(home: &Path) -> PathBuf {
     container_ue4ss_dir(home).join("UE4SS.log")
 }
 
+/// 게임 실행 시 stdout/stderr 리다이렉트 대상. 터미널 런처(launch-ue4ss.sh)와 동일 위치라
+/// 앱/터미널 어느 쪽으로 띄워도 진단 로그가 한곳에 모인다. 실행마다 truncate.
+/// Caches라 OS가 비워도 안전(재생성됨).
+pub fn launch_log(home: &Path) -> PathBuf {
+    home.join("Library/Caches/ue4ss-mac/palworld-launch.log")
+}
+
 pub fn real_home() -> PathBuf {
     PathBuf::from(std::env::var("HOME").expect("HOME must be set"))
 }
@@ -181,6 +188,10 @@ mod tests {
             PathBuf::from(
                 "/Users/test/Library/Containers/com.pocketpair.palworld.mac/Data/UE4SS/UE4SS.log"
             )
+        );
+        assert_eq!(
+            launch_log(home),
+            PathBuf::from("/Users/test/Library/Caches/ue4ss-mac/palworld-launch.log")
         );
     }
 

@@ -4,6 +4,16 @@
 
 Notable changes to this project. Versions follow the manager app version (`src-tauri/tauri.conf.json`) and are separate from the bundled UE4SS runtime version.
 
+## [0.1.1] - 2026-07-05
+
+### Fixed
+
+- Game launch hang (black screen / "not responding") with log-heavy mods. The manager spawned the game with inherited stdio, so once the game's log output filled the unread pipe buffer (~64 KB) its `write()` blocked and the game froze — reproducible with a verbose mod (e.g. MinimapWidget) enabled. The manager now redirects the game's stdout/stderr to a log file (`~/Library/Caches/ue4ss-mac/palworld-launch.log`, same location as the terminal launcher), so log volume can no longer stall the game.
+
+### Changed
+
+- Bundled UE4SS runtime updated to **v0.2.1** (was v0.2.0). Fixes the FName setter guard so Blueprint logic mods (e.g. ModConfigMenu) actually load instead of failing at `GetAsset`. Manager app version and bundled UE4SS version remain independent.
+
 ## [0.1.0] - 2026-07-05
 
 Initial public release. A native macOS (Apple Silicon) mod manager for Palworld.

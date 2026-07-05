@@ -400,7 +400,7 @@ mod tests {
         // 1) 실제 install() — fetch_latest→download→extract→xattr→codesign→version.txt
         let ver = install(&home).expect("install()이 성공해야");
         println!("install returned version = {ver}");
-        assert_eq!(ver, "v0.2.0", "라이브 최신 릴리즈 태그");
+        assert_eq!(ver, "v0.2.1", "라이브 최신 릴리즈 태그");
 
         // 2) 런타임 전체(dylib+loader-mods+settings)가 폴더에 설치되고 version.txt 정합
         let dir = crate::paths::ue4ss_runtime_dir(&home);
@@ -409,7 +409,7 @@ mod tests {
         let sz = std::fs::metadata(&dylib).unwrap().len();
         println!("dylib size = {sz} bytes");
         assert!(sz > 100_000, "dylib이 실제 바이너리 크기여야: {sz}");
-        assert_eq!(std::fs::read_to_string(dir.join(VERSION_FILE)).unwrap().trim(), "v0.2.0");
+        assert_eq!(std::fs::read_to_string(dir.join(VERSION_FILE)).unwrap().trim(), "v0.2.1");
         // Lua 인프라·settings까지 통째로 들어왔는지(핵심: dylib만 아님)
         assert!(dir.join("loader-mods/BPModLoaderMod/Scripts/main.lua").is_file(),
             "BPModLoaderMod 함께 설치");

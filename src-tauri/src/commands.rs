@@ -314,7 +314,10 @@ pub async fn launch_game(app: tauri::AppHandle) -> Result<u32, String> {
     }
     injection::ensure_adhoc_signed(&dylib)?;
     let game_binary = paths::configured_game_binary(&home);
-    let child = injection::build_command(&game_binary, &dylib)
+    let mut cmd = injection::build_command(&game_binary, &dylib);
+    // 게임 로그를 파일로 리다이렉트. 안 하면 inherit된 fd 파이프가 차서 게임이 hang(검은화면).
+    injection::redirect_output_to(&mut cmd, &paths::launch_log(&home))?;
+    let child = cmd
         .spawn()
         .map_err(|e| format!("spawn failed: {e}"))?;
     let pid = child.id();
