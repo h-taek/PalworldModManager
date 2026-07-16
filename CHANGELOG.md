@@ -4,6 +4,17 @@
 
 Notable changes to this project. Versions follow the manager app version (`src-tauri/tauri.conf.json`) and are separate from the bundled UE4SS runtime version.
 
+## [0.2.0] - 2026-07-16
+
+### Added
+
+- Unified update notifications. On launch the app checks for updates to itself, the UE4SS runtime, and installed mods in parallel (each check is failure-isolated), and surfaces any available update as a persistent card in the bottom-right of the Mods tab. Mods and the UE4SS runtime can be updated in place from their card; the app update opens its GitHub release page instead of auto-installing (the app is ad-hoc signed, so it cannot self-install). Re-check manually from the sidebar.
+
+### Changed
+
+- The mod list no longer shows a per-row "Update" badge — update notices are consolidated into the unified panel.
+- Play screen: added two background clips and lightened the readability overlay so darker footage is no longer over-dimmed.
+
 ## [0.1.1] - 2026-07-05
 
 ### Fixed

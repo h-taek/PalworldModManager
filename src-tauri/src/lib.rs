@@ -1,3 +1,4 @@
+mod app_update;
 mod classify;
 mod commands;
 mod detection;
@@ -41,6 +42,7 @@ pub fn run() {
             commands::update_mod,
             commands::ue4ss_status,
             commands::ue4ss_install_update,
+            commands::app_status,
             commands::read_log
         ])
         .run(tauri::generate_context!())

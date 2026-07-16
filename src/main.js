@@ -9,6 +9,8 @@ const PALWORLD_WALLPAPER_VIDEO_SOURCES = [
   "/assets/Palworld_1_upscaling_24fps.mp4",
   "/assets/Palworld_2_upscaling_24fps.mp4",
   "/assets/Palworld_3_upscaling_24fps.mp4",
+  "/assets/Palworld_4_24fps.mp4",
+  "/assets/Palworld_5_24fps.mp4",
 ];
 const PALWORLD_WALLPAPER_VIDEO_SRC = PALWORLD_WALLPAPER_VIDEO_SOURCES[Math.floor(Math.random() * PALWORLD_WALLPAPER_VIDEO_SOURCES.length)];
 const PALWORLD_WALLPAPER_CROSSFADE_SECONDS = 0.85;
@@ -38,6 +40,9 @@ async function setView(v) {
   current = v;
   views.forEach((s) => s.classList.toggle("on", s.dataset.view === v));
   rail.forEach((b) => b.classList.toggle("on", b.dataset.view === v));
+  // 업데이트 팝업 스택은 모드 뷰에서만 노출
+  const stack = document.querySelector("#update-stack");
+  if (stack) stack.hidden = v !== "mods";
   if (v === "play") return renderPlay();
   else if (v === "mods") return renderMods();
   else if (v === "settings") return renderSettings();
@@ -252,9 +257,6 @@ async function openExternal(url) {
 }
 
 function rowHtml(m) {
-  const u = modsState.updates[m.id];
-  const upd = u && u.has_update
-    ? `<button class="updbadge" data-upd="${esc(m.id)}">Update → ${esc(u.latest)}</button>` : "";
   const sw = `<label class="sw ${m.enabled ? "on" : ""} ${m.deployable ? "" : "dis"}">
       <input type="checkbox" data-tog="${esc(m.id)}" ${m.enabled ? "checked" : ""} ${m.deployable ? "" : "disabled"} hidden>
       <span class="t"></span></label>`;
@@ -262,7 +264,7 @@ function rowHtml(m) {
   return `<div class="row ${m.enabled ? "" : "off"}">
     <div class="ic">${m.mod_type === "lua" ? ICON_LUA : ICON_PAK}</div>
     <div class="body"><div class="name">${esc(m.name)}</div><div class="src">${esc(src)}</div></div>
-    <div class="cluster">${upd}<span class="kind ${m.mod_type === "lua" ? "" : "pak"}">${kindLabel(m.mod_type)}</span>${sw}<button class="rm" data-rm="${esc(m.id)}">✕</button></div>
+    <div class="cluster"><span class="kind ${m.mod_type === "lua" ? "" : "pak"}">${kindLabel(m.mod_type)}</span>${sw}<button class="rm" data-rm="${esc(m.id)}">✕</button></div>
   </div>`;
 }
 
@@ -307,7 +309,7 @@ async function renderSidebar() {
         <button class="ab" id="pf-dup">⧉ Dup</button>
         <button class="ab" id="side-import"><span class="plus">＋</span>Import</button>
       </div>
-      <p class="import-hint">모드는 다운로드한 원본 폴더 구조 그대로 임포트하세요 (LogicMods/~mods 폴더가 있으면 그대로 유지).</p>
+      <p class="import-hint">다운로드한 폴더 구조 그대로 가져오세요. <code>LogicMods</code>·<code>~mods</code> 폴더는 자동으로 유지됩니다.</p>
     </div>
 
     <div class="ssection">
@@ -380,7 +382,7 @@ function wireSidebar(side) {
   });
   side.querySelector("#side-redetect").addEventListener("click", renderSidebar);
   side.querySelector("#side-import").addEventListener("click", () => importViaPicker());
-  side.querySelector("#side-check").addEventListener("click", checkUpdates);
+  side.querySelector("#side-check").addEventListener("click", () => checkAllUpdates(true));
   side.querySelector("#side-github").addEventListener("click", () => openExternal(REPO_URL));
   side.querySelector("#side-mod-repo").addEventListener("click", () => openExternal(MOD_REPOSITORY_URL));
   side.querySelectorAll("[data-show]").forEach((b) => b.addEventListener("click", () => { modsState.show = b.dataset.show; renderMods(); }));
@@ -413,7 +415,6 @@ function wireMods(el) {
     catch (err) { toast("err", String(err)); await renderMods(); }
   }));
   el.querySelectorAll("[data-rm]").forEach((b) => b.addEventListener("click", () => confirmRemove(b.dataset.rm)));
-  el.querySelectorAll("[data-upd]").forEach((b) => b.addEventListener("click", () => doUpdate(b.dataset.upd)));
 }
 function rerenderList() { renderMods(); }
 
@@ -428,15 +429,6 @@ async function importViaPicker() {
   // 네이티브 NSOpenPanel 하나로 파일(zip/pak) 또는 폴더를 선택해 임포트.
   try { const v = await invoke("pick_mod_path"); if (v) { notifyImported(v); await renderMods(); } }
   catch (e) { reportModError(e); }
-}
-async function checkUpdates() {
-  toast("ok", "checking…");
-  try {
-    const list = await invoke("check_updates");
-    modsState.updates = {}; list.forEach((u) => (modsState.updates[u.id] = u));
-    const n = list.filter((u) => u.has_update).length;
-    toast("ok", `${n} update(s)`); await renderMods();
-  } catch (e) { toast("err", String(e)); }
 }
 async function doUpdate(id) {
   try {
@@ -477,7 +469,10 @@ async function renderSettings() {
         <div class="rc"></div></div>
       <div class="srow"><div class="rl"><div class="rt">UE4SS version</div>
         <div class="rd" id="ue4ss-ver">Checking…</div></div>
-        <div class="rc"><button class="sbtn" id="ue4ss-check">Check for update</button><button class="sbtn" id="ue4ss-update" hidden>Update</button></div></div>
+        <div class="rc"></div></div>
+      <div class="srow"><div class="rl"><div class="rt">앱 버전</div>
+        <div class="rd" id="app-ver">Checking…</div></div>
+        <div class="rc"><button class="sbtn" id="app-check">앱 업데이트 확인</button></div></div>
     </div></div>
     <div class="grp"><div class="gl">Game log</div><div class="cardlist">
       <div class="srow"><div class="rl"><div class="rt">UE4SS.log</div><div class="rd">Last 64KB of the container log</div></div>
@@ -493,32 +488,35 @@ async function renderSettings() {
       await renderSettings();
     } catch (e) { toast("err", String(e)); }
   });
-  // UE4SS 버전/업데이트 (release: 다운로드본 우선 / dev: 번들 우선)
+  // UE4SS 버전 표시(설치/체크는 좌하단 팝업 카드로 이동 — 여기선 버전 확인만).
   const ue4ssVer = el.querySelector("#ue4ss-ver");
-  const ue4ssUpdate = el.querySelector("#ue4ss-update");
-  async function refreshUe4ss(viaButton) {
-    ue4ssVer.textContent = "Checking…"; ue4ssUpdate.hidden = true;
+  (async () => {
     try {
       const s = await invoke("ue4ss_status");
-      if (s.error) {
-        ue4ssVer.textContent = `Current ${s.current} · check failed`;
-        if (viaButton) toast("err", s.error);
-      } else if (s.update_available) {
-        ue4ssVer.textContent = `Current ${s.current} · latest ${s.latest} — update available`;
-        ue4ssUpdate.hidden = false;
-      } else {
-        ue4ssVer.textContent = `Current ${s.current} · up to date`;
-      }
-    } catch (e) { ue4ssVer.textContent = String(e); if (viaButton) toast("err", String(e)); }
+      ue4ssVer.textContent = s.error ? `Current ${s.current} · check failed`
+        : s.update_available ? `Current ${s.current} · latest ${s.latest} — 좌하단 알림에서 설치`
+        : `Current ${s.current} · up to date`;
+    } catch (e) { ue4ssVer.textContent = String(e); }
+  })();
+
+  // 앱 버전 + 수동 업데이트 확인(결과는 공통 팝업 카드로 표시).
+  const appVer = el.querySelector("#app-ver");
+  async function refreshApp(viaButton) {
+    appVer.textContent = "Checking…";
+    try {
+      const s = await invoke("app_status");
+      appVer.textContent = s.error ? `Current ${s.current} · check failed`
+        : s.update_available ? `Current ${s.current} · latest ${s.latest} — update available`
+        : `Current ${s.current} · up to date`;
+      if (s.update_available) {
+        if (viaButton) dismissedUpdates.delete("app");
+        if (!dismissedUpdates.has("app")) renderAppCard(s);
+      } else if (viaButton) toast("ok", "앱이 최신입니다");
+      if (s.error && viaButton) toast("err", s.error);
+    } catch (e) { appVer.textContent = String(e); if (viaButton) toast("err", String(e)); }
   }
-  el.querySelector("#ue4ss-check").addEventListener("click", () => refreshUe4ss(true));
-  ue4ssUpdate.addEventListener("click", async () => {
-    ue4ssUpdate.disabled = true; toast("ok", "Downloading UE4SS…");
-    try { const v = await invoke("ue4ss_install_update"); toast("ok", `UE4SS updated to ${v}`); await refreshUe4ss(false); }
-    catch (e) { toast("err", String(e)); }
-    finally { ue4ssUpdate.disabled = false; }
-  });
-  refreshUe4ss(false); // Settings 진입 시 1회(알림만, 자동설치 안 함)
+  el.querySelector("#app-check").addEventListener("click", () => refreshApp(true));
+  refreshApp(false); // Settings 진입 시 버전 표시(있으면 카드도, 자동설치 없음)
 
   const show = async () => {
     const pre = el.querySelector("#gamelog"); pre.hidden = false;
@@ -536,6 +534,114 @@ function toast(kind, msg) {
   el.className = `toast ${kind}`; el.textContent = msg;
   host.appendChild(el);
   setTimeout(() => el.remove(), kind === "err" ? 5200 : 2400);
+}
+
+// ── Update notification cards (좌하단 지속형 팝업 스택) ──
+// 세 축(모드·UE4SS·앱)을 앱 실행 시 자동 체크 → 있는 것만 카드로. 닫으면 이번 실행만 숨김.
+const dismissedUpdates = new Set(); // 이번 실행에 사용자가 닫은 종류(자동 재팝업 방지)
+
+function removeUpdateCard(key) { document.querySelector(`#uc-${key}`)?.remove(); }
+function dismissUpdateCard(key) { dismissedUpdates.add(key); removeUpdateCard(key); }
+
+// 카드 1장 생성/교체(종류당 최대 1장). innerHtml = head+actions(+body). 반환 el.
+function upsertUpdateCard(key, innerHtml) {
+  const host = document.querySelector("#update-stack");
+  if (!host) return null;
+  let el = document.querySelector(`#uc-${key}`);
+  if (!el) { el = document.createElement("div"); el.className = "ucard"; el.id = `uc-${key}`; host.appendChild(el); }
+  el.innerHTML = innerHtml;
+  el.querySelector("[data-uc-x]")?.addEventListener("click", () => dismissUpdateCard(key));
+  return el;
+}
+// 버전 표기 통일: 숫자로 시작하면 v 접두사를 붙여 "v0.2.1" 형태로 맞춤(이미 v면 그대로).
+function fmtVer(v) {
+  const s = String(v ?? "").trim();
+  return /^\d/.test(s) ? "v" + s : s;
+}
+function cardHead(title) {
+  return `<div class="uc-head"><span class="uc-title">${esc(title)}</span><button class="uc-x" data-uc-x aria-label="닫기">✕</button></div>`;
+}
+
+// 모드 카드: modsState.updates 기준(펼치면 모드별 개별 업데이트). 없으면 카드 제거.
+function renderModCard() {
+  const ups = Object.values(modsState.updates).filter((u) => u && u.has_update);
+  if (!ups.length) { removeUpdateCard("mods"); return; }
+  const items = ups.map((u) => `<div class="uc-item"><span class="uc-item-name">${esc(u.name || u.id)} → ${esc(fmtVer(u.latest))}</span><button class="uc-mini" data-uc-mod="${esc(u.id)}">업데이트</button></div>`).join("");
+  const html = cardHead(`모드 ${ups.length}개 업데이트`)
+    + `<div class="uc-actions"><button class="uc-toggle" data-uc-exp>상세 <span class="uc-caret">▾</span></button><button class="uc-btn" data-uc-all>모두 업데이트</button></div>`
+    + `<div class="uc-body" hidden>${items}</div>`;
+  const el = upsertUpdateCard("mods", html);
+  if (!el) return;
+  el.querySelector("[data-uc-exp]")?.addEventListener("click", (e) => {
+    const body = el.querySelector(".uc-body");
+    body.hidden = !body.hidden;
+    e.currentTarget.innerHTML = body.hidden ? '상세 <span class="uc-caret">▾</span>' : '상세 <span class="uc-caret">▴</span>';
+  });
+  el.querySelector("[data-uc-all]")?.addEventListener("click", async () => {
+    const ids = Object.values(modsState.updates).filter((u) => u && u.has_update).map((u) => u.id);
+    for (const id of ids) { await doUpdate(id); }
+    renderModCard();
+  });
+  el.querySelectorAll("[data-uc-mod]").forEach((b) => b.addEventListener("click", async () => {
+    await doUpdate(b.dataset.ucMod);
+    renderModCard();
+  }));
+}
+
+// UE4SS 카드: 설치는 여기서(설정에서 이동). 반환 없음.
+function renderUe4ssCard(s) {
+  if (!s || !s.update_available) { removeUpdateCard("ue4ss"); return; }
+  const html = cardHead(`UE4SS ${fmtVer(s.current) || "?"} → ${fmtVer(s.latest)}`)
+    + `<div class="uc-actions"><button class="uc-btn" data-uc-ue>업데이트</button></div>`;
+  const el = upsertUpdateCard("ue4ss", html);
+  el?.querySelector("[data-uc-ue]")?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget; btn.disabled = true; btn.textContent = "설치 중…";
+    try {
+      const v = await invoke("ue4ss_install_update");
+      toast("ok", `UE4SS ${v} 설치됨`);
+      dismissedUpdates.add("ue4ss"); removeUpdateCard("ue4ss");
+    } catch (err) { toast("err", String(err)); btn.disabled = false; btn.textContent = "업데이트"; }
+  });
+}
+
+// 앱 카드: ad-hoc 서명이라 자동설치 불가 → 릴리즈 페이지로 안내.
+function renderAppCard(s) {
+  if (!s || !s.update_available) { removeUpdateCard("app"); return; }
+  const html = cardHead(`앱 ${fmtVer(s.current)} → ${fmtVer(s.latest)}`)
+    + `<div class="uc-actions"><button class="uc-btn" data-uc-app>릴리즈 페이지</button></div>`;
+  const el = upsertUpdateCard("app", html);
+  el?.querySelector("[data-uc-app]")?.addEventListener("click", () => openExternal(s.release_url || `${REPO_URL}/releases/latest`));
+}
+
+// 공통 오케스트레이터: 3종 병렬 체크(실패 격리). viaButton=수동 재체크(닫은 것 초기화+결과 토스트).
+async function checkAllUpdates(viaButton) {
+  if (viaButton) { dismissedUpdates.clear(); toast("ok", "업데이트 확인 중…"); }
+  const tasks = [
+    (async () => {
+      const list = await invoke("check_updates");
+      modsState.updates = {}; list.forEach((u) => (modsState.updates[u.id] = u));
+      await renderMods();
+      if (dismissedUpdates.has("mods")) removeUpdateCard("mods"); else renderModCard();
+      return { count: list.filter((u) => u.has_update).length, error: null };
+    })(),
+    (async () => {
+      const s = await invoke("ue4ss_status");
+      if (dismissedUpdates.has("ue4ss")) removeUpdateCard("ue4ss"); else renderUe4ssCard(s);
+      return { count: s && s.update_available ? 1 : 0, error: s && s.error };
+    })(),
+    (async () => {
+      const s = await invoke("app_status");
+      if (dismissedUpdates.has("app")) removeUpdateCard("app"); else renderAppCard(s);
+      return { count: s && s.update_available ? 1 : 0, error: s && s.error };
+    })(),
+  ];
+  const results = await Promise.allSettled(tasks);
+  if (!viaButton) return;
+  const totals = results.reduce((n, r) => n + (r.status === "fulfilled" ? r.value.count : 0), 0);
+  const fails = results.filter((r) => r.status === "rejected").length
+    + results.filter((r) => r.status === "fulfilled" && r.value.error).length;
+  if (totals === 0 && fails === 0) toast("ok", "모두 최신 상태입니다");
+  else if (fails) toast("err", "일부 업데이트 확인에 실패했어요");
 }
 
 // ── Modal helpers (WKWebView prompt 금지 — 인앱 모달로 대체) ──
@@ -614,10 +720,5 @@ listen("mod-staging", (e) => {
 
 setView("play");
 
-// 시작 시 UE4SS 업데이트 알림만(자동설치 안 함 — 적용은 Settings에서).
-(async () => {
-  try {
-    const s = await invoke("ue4ss_status");
-    if (s && s.update_available) toast("ok", `UE4SS ${s.latest} available — update in Settings`);
-  } catch { /* 오프라인 등 무시 */ }
-})();
+// 시작 시 3종(모드·UE4SS·앱) 자동 체크 → 있는 것만 좌하단 팝업 카드로. 없으면 조용.
+checkAllUpdates(false);

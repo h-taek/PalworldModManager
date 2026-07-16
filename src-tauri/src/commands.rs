@@ -1,8 +1,8 @@
 use crate::detection::DetectionResult;
 use crate::manifest::{self, Manifest, ModType};
 use crate::{
-    detection, injection, library, logtail, modstore, pak_convert, paths, profiles, retoc,
-    staging, ue4ss, updater,
+    app_update, detection, injection, library, logtail, modstore, pak_convert, paths, profiles,
+    retoc, staging, ue4ss, updater,
 };
 use serde::Serialize;
 use std::path::{Path, PathBuf};
@@ -414,6 +414,16 @@ pub async fn ue4ss_install_update() -> Result<String, String> {
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+/// 앱 자체 업데이트 상태(시작 시/설정 버튼). GitHub releases/latest 태그를 현재 앱
+/// 버전과 비교. 메타만 — ad-hoc 서명이라 자동설치는 없고 프런트가 릴리즈 페이지로 안내한다.
+#[tauri::command]
+pub async fn app_status(app: tauri::AppHandle) -> Result<app_update::AppStatus, String> {
+    let current = app.package_info().version.to_string();
+    tauri::async_runtime::spawn_blocking(move || app_update::status(&current))
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// 런타임 보장(컨테이너) + 번들 3버킷 reconcile + deployed.json 갱신.

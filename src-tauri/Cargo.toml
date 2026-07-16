@@ -1,6 +1,6 @@
 [package]
 name = "palworld-mod-manager"
-version = "0.1.1"
+version = "0.2.0"
 description = "Palworld Mod Manager (macOS arm64)"
 authors = ["htaeky"]
 edition = "2021"

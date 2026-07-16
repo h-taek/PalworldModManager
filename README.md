@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-orange.svg">
+  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-orange.svg">
   <img alt="Desktop" src="https://img.shields.io/badge/desktop-Apple%20Silicon-lightgrey.svg">
   <img alt="UE4SS" src="https://img.shields.io/badge/UE4SS-v0.2.0%20bundled-blue.svg">
 </p>
@@ -43,12 +43,7 @@
 
 - macOS Apple Silicon (arm64) only.
 - Some Windows-cooked cosmetic paks may not render due to shader-format differences (a property of how the mod was cooked, not the manager).
-- The manager app itself has no self-update; a new version is installed by re-downloading.
-
-## Related projects
-
-- [UE4SS-Palworld-macOS](https://github.com/h-taek/UE4SS-Palworld-macOS) — the macOS (Apple Silicon) UE4SS loader this app injects and auto-updates.
-- [PalworldMod](https://github.com/h-taek/PalworldMod) — homemade QoL mods for Palworld on macOS, installable through this app.
+- The manager checks for updates (itself, the UE4SS runtime, and mods) and shows them in a panel, but the app itself can't self-install (ad-hoc signed) — it links to the release page, so update the app by re-downloading.
 
 ## License
 
